@@ -2,7 +2,7 @@ name: Mise en ligne
 
 on:
   push:
-    branches: [DevBranch]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
