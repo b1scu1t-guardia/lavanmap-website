@@ -1,5 +1,5 @@
 import {
-  AmbientLight, DirectionalLight, Group, MathUtils, PerspectiveCamera, PMREMGenerator, Scene,
+  AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, PerspectiveCamera, PMREMGenerator, Scene,
   ShaderMaterial, SRGBColorSpace, TextureLoader, WebGLRenderer, LinearFilter, LinearMipmapLinearFilter,
 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -20,8 +20,9 @@ const POSES = [
 const smooth = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 
 export async function createPhone(canvas, theme, wake) {
-  const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
+  let ratio = Math.min(devicePixelRatio, 1.5);
+  renderer.setPixelRatio(ratio);
   renderer.setClearColor(0x000000, 0);
 
   const scene = new Scene();
@@ -43,7 +44,7 @@ export async function createPhone(canvas, theme, wake) {
     const t = await loader.loadAsync(`${import.meta.env.BASE_URL}screens/${name}.webp`);
     t.flipY = false;
     t.colorSpace = SRGBColorSpace;
-    t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    t.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
     t.minFilter = LinearMipmapLinearFilter;
     t.magFilter = LinearFilter;
     return t;
@@ -85,7 +86,16 @@ export async function createPhone(canvas, theme, wake) {
   model.traverse((o) => {
     if (!o.isMesh) return;
     if (o.material.name === 'Screen') o.material = screen;
-    else if (o.material.name === 'Lens') o.material.envMapIntensity = 1.6;
+    else {
+      // Matière simple : le vernis physique coûtait cher pour un effet à peine visible.
+      const m = o.material;
+      o.material = new MeshStandardMaterial({
+        color: m.color, metalness: m.metalness, roughness: m.roughness * 0.85,
+        envMapIntensity: m.name === 'Lens' ? 1.6 : 1.1,
+      });
+    }
+    o.matrixAutoUpdate = false;
+    o.updateMatrix();
   });
   model.rotation.x = Math.PI / 2; // Blender : écran vers +Z, export en Y vers le haut
   const phone = new Group();
@@ -122,7 +132,21 @@ export async function createPhone(canvas, theme, wake) {
   canvas.addEventListener('pointerup', release);
   canvas.addEventListener('pointercancel', release);
 
+  // Tout est envoyé à la carte graphique avant le premier défilement.
+  first.forEach((t) => renderer.initTexture(t));
+  await renderer.compileAsync(scene, camera);
+
   let wide = true, aspect = 1, intro = 0;
+  let slow = 0;
+  /** Machine peu puissante : on baisse la finesse plutôt que la fluidité. */
+  const adapt = (dt) => {
+    slow = dt > 0.024 ? slow + 1 : Math.max(0, slow - 0.5);
+    if (slow > 6 && ratio > 0.6) {
+      ratio = Math.max(0.6, ratio - 0.3);
+      renderer.setPixelRatio(ratio);
+      slow = 0;
+    }
+  };
 
   const applyTheme = (t) => {
     const dark = t === 'dark';
@@ -134,9 +158,10 @@ export async function createPhone(canvas, theme, wake) {
   let wanted = theme;
 
   return {
-    resize(w, h) {
+    resize() {
+      const w = canvas.clientWidth, h = canvas.clientHeight;
       renderer.setSize(w, h, false);
-      wide = w > 820;
+      wide = innerWidth > 820;
       aspect = w / h;
       camera.aspect = aspect;
       camera.updateProjectionMatrix();
@@ -145,6 +170,7 @@ export async function createPhone(canvas, theme, wake) {
       wanted = t;
       applyTheme(t);
       const next = await loadSet(t);
+      next.forEach((x) => renderer.initTexture(x));
       if (wanted !== t || next === textures) return;
       previous = textures;
       textures = next;
@@ -153,6 +179,7 @@ export async function createPhone(canvas, theme, wake) {
     },
     /** Renvoie vrai tant qu'il reste du mouvement. */
     render(p, dt) {
+      adapt(dt);
       const i = MathUtils.clamp(Math.floor(p), 0, SCREENS.length - 2);
       const t = smooth(MathUtils.clamp((p - i - 0.15) / 0.7, 0, 1));
       const u = screen.uniforms;
@@ -184,12 +211,11 @@ export async function createPhone(canvas, theme, wake) {
       const viewW = viewH * aspect;
       const hop = Math.sin(t * Math.PI) * 0.06;
       if (wide) {
-        const scale = Math.min(1.36, (viewW * 0.3) / 1.15);
-        phone.scale.setScalar(scale);
-        phone.position.set(viewW * 0.245, hop - (1 - enter) * 1.4, 0);
+        phone.scale.setScalar(Math.min(1.36, (viewW * 0.58) / 1.15));
+        phone.position.set(viewW * 0.02, hop - (1 - enter) * 1.4, 0);
       } else {
-        phone.scale.setScalar(Math.min(0.86, (viewW * 0.62) / 1.05));
-        phone.position.set(0, viewH * 0.145 + hop - (1 - enter) * 1.2, 0);
+        phone.scale.setScalar(Math.min(1.2, (viewW * 0.62) / 1.05));
+        phone.position.set(0, viewH * 0.0 + hop - (1 - enter) * 1.2, 0);
       }
       renderer.render(scene, camera);
 

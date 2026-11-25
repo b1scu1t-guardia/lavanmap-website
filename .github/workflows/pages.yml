@@ -35,9 +35,23 @@ jobs:
     permissions:
       pages: write
       id-token: write
+      actions: read
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
+      # Si « Deploy from a branch » est encore actif, GitHub publie aussi les fichiers bruts :
+      # on attend qu'il ait fini pour que le site assemblé passe en dernier.
+      - name: Attendre l'autre publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sleep 20
+          for i in $(seq 1 18); do
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$GITHUB_SHA&per_page=20" \
+              --jq '[.workflow_runs[] | select(.name == "pages build and deployment" and .status != "completed")] | length')
+            [ "$n" = "0" ] && break
+            sleep 5
+          done
       - id: deploy
         uses: actions/deploy-pages@v4
