@@ -45,7 +45,6 @@ body {
   background: var(--land);
   color: var(--ink);
   font: 400 1.125rem/1.55 'Overpass Variable', system-ui, sans-serif;
-  transition: background-color 0.5s, color 0.5s;
 }
 h1, h2, .end {
   margin: 0;
@@ -73,10 +72,10 @@ a { color: inherit; text-underline-offset: 0.2em; }
 .brand {
   display: flex; align-items: center; gap: 10px;
   padding: 6px 18px 6px 6px; border-radius: 28px;
-  background: var(--chip); font-weight: 800; text-decoration: none; transition: background-color 0.5s;
+  background: var(--chip); font-weight: 800; text-decoration: none;
 }
 .brand img { border-radius: 50%; }
-.themes { display: flex; margin: 0; padding: 4px; border: 0; border-radius: 28px; background: var(--chip); transition: background-color 0.5s; }
+.themes { display: flex; margin: 0; padding: 4px; border: 0; border-radius: 28px; background: var(--chip); }
 .themes input { position: absolute; opacity: 0; pointer-events: none; }
 .themes span { display: block; padding: 8px 16px 6px; border-radius: 24px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background-color 0.25s, color 0.25s; }
 .themes span:hover { background: color-mix(in srgb, var(--brand) 14%, transparent); }
@@ -85,11 +84,10 @@ a { color: inherit; text-underline-offset: 0.2em; }
 
 /* Le trajet */
 .trip { height: 620svh; }
-.stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
-.map { position: absolute; inset: 0 auto auto 0; width: 100%; will-change: transform; }
-.map path, .map circle { transition: fill 0.5s, stroke 0.5s; }
-.van { position: absolute; left: 0; top: 0; width: 46px; height: auto; will-change: transform; filter: drop-shadow(0 6px 6px rgb(0 20 10 / 0.35)); }
-.phone { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: pan-y; cursor: grab; }
+.stage { position: sticky; top: 0; height: 100svh; overflow: hidden; contain: strict; }
+/* Deux calques, chacun à la taille utile. */
+.map { position: absolute; inset: 0; width: 100%; height: 100%; }
+.phone { position: absolute; top: 0; right: 0; width: 52%; height: 100%; touch-action: pan-y; cursor: grab; }
 .phone:active { cursor: grabbing; }
 .still { display: none; }
 .steps { position: absolute; inset: 0; pointer-events: none; }
@@ -103,22 +101,18 @@ a { color: inherit; text-underline-offset: 0.2em; }
 .step.is-past { transform: translateY(calc(-50% - 36px)); }
 .step h1 { font-size: clamp(2.6rem, 5vw, 5rem); }
 .step h2 { font-size: clamp(2.4rem, 4.4vw, 4.2rem); }
-.step p { margin-top: 1.3rem; max-width: 30rem; font-size: 1.25rem; color: var(--soft); transition: color 0.5s; }
+.step p { margin-top: 1.3rem; max-width: 30rem; font-size: 1.25rem; color: var(--soft); }
 .step .soon { display: inline-block; padding: 14px 24px 11px; border-radius: 28px; background: var(--brand); color: var(--on-brand); font-size: 1.1rem; font-weight: 700; }
 
-/* Repères de la carte */
-.pin { transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform 0.55s cubic-bezier(0.3, 1.6, 0.5, 1); }
-.pin.is-on { transform: scale(1); }
-
 /* Pensée pour la route */
-.facts { padding: clamp(96px, 14vw, 190px) clamp(16px, 6vw, 104px); background: var(--band); color: var(--on-band); transition: background-color 0.5s, color 0.5s; }
+.facts { padding: clamp(96px, 14vw, 190px) clamp(16px, 6vw, 104px); background: var(--band); color: var(--on-band); }
 .facts h2, .modes h2 { font-size: clamp(2.6rem, 6vw, 5.6rem); }
 .facts dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(28px, 4vw, 72px); margin: clamp(48px, 6vw, 88px) 0 0; }
 .facts dt { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.015em; }
 .facts dd { margin: 0.6rem 0 0; max-width: 26rem; }
 
 /* Clair et sombre */
-.modes { display: grid; grid-template-columns: 1fr 1.1fr; align-items: center; gap: 32px; padding: clamp(80px, 10vw, 150px) clamp(16px, 6vw, 104px); background: var(--water); overflow: hidden; transition: background-color 0.5s; }
+.modes { display: grid; grid-template-columns: 1fr 1.1fr; align-items: center; gap: 32px; padding: clamp(80px, 10vw, 150px) clamp(16px, 6vw, 104px); background: var(--water); overflow: hidden; }
 .modes p { margin-top: 1.4rem; max-width: 28rem; font-size: 1.25rem; }
 .switch { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 2rem; }
 .switch button { padding: 15px 24px 12px; border: 0; border-radius: 16px; background: var(--chip); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; transition: background-color 0.25s, color 0.25s, transform 0.2s; }
@@ -126,7 +120,7 @@ a { color: inherit; text-underline-offset: 0.2em; }
 .switch button:active { transform: scale(0.97); }
 .switch button[aria-pressed='true'] { background: var(--brand); color: var(--on-brand); }
 .pair { position: relative; height: min(78vw, 820px); }
-.pair img { position: absolute; top: 50%; left: 50%; height: 100%; width: auto; transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.8s; }
+.pair img { position: absolute; top: 50%; left: 50%; height: 100%; width: auto; transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .pair img:first-child { transform: translate(-92%, -50%) rotate(-4deg); z-index: 1; }
 .pair img:last-child { transform: translate(-12%, -50%) rotate(3deg) scale(0.9); }
 [data-theme='dark'] .pair img:first-child { transform: translate(-88%, -50%) rotate(-4deg) scale(0.9); z-index: 0; }
@@ -152,7 +146,7 @@ footer .end { max-width: 18ch; margin-bottom: 4rem; color: var(--ink); font-size
   .step h2 { font-size: clamp(1.7rem, 7.6vw, 2.4rem); }
   .step p { margin-top: 0.7rem; font-size: 1.05rem; line-height: 1.45; }
   .step .soon { padding: 10px 18px 8px; font-size: 1rem; }
-  .van { width: 28px; }
+  .phone { width: 100%; height: 72%; }
   .facts dl, .modes { grid-template-columns: 1fr; }
   .pair { height: 98vw; margin-top: 24px; }
 }
@@ -160,8 +154,8 @@ footer .end { max-width: 18ch; margin-bottom: 4rem; color: var(--ink); font-size
 
 /* Sans JavaScript, sans WebGL ou animations réduites : une page simple. */
 .flat .trip, html:not(.js) .trip { height: auto; }
-.flat .stage, html:not(.js) .stage { position: static; height: auto; padding: 120px clamp(16px, 6vw, 104px) 40px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; }
-.flat .map, .flat .van, .flat .phone, html:not(.js) .map, html:not(.js) .van, html:not(.js) .phone { display: none; }
+.flat .stage, html:not(.js) .stage { position: static; contain: none; height: auto; padding: 120px clamp(16px, 6vw, 104px) 40px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; }
+.flat .map, .flat .phone, html:not(.js) .map, html:not(.js) .phone { display: none; }
 .flat .still, html:not(.js) .still { display: block; order: 2; position: sticky; top: 100px; align-self: start; }
 .still img { width: 100%; max-width: 420px; height: auto; }
 .flat .steps, html:not(.js) .steps { position: static; pointer-events: auto; }

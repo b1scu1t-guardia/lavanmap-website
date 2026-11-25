@@ -29,12 +29,14 @@ if (calm.matches || !hasWebGL()) {
 }
 
 async function start() {
-  const map = createMap(document.querySelector('.map'), document.querySelector('.van'), STEPS);
+  const map = createMap(document.querySelector('.map'), `${import.meta.env.BASE_URL}models/van.webp`, STEPS);
   let phone = null;
   let target = 0;
   let current = 0;
   let last = 0;
   let running = false;
+  let visible = true;
+  let shown = -1;
 
   const read = () => {
     const max = trip.offsetHeight - innerHeight;
@@ -43,26 +45,28 @@ async function start() {
 
   const show = (p) => {
     const on = Math.round(p);
+    if (on === shown) return;
+    shown = on;
     steps.forEach((s, i) => {
       s.classList.toggle('is-on', i === on);
       s.classList.toggle('is-past', i < on);
     });
-    map.update(p);
   };
 
   const frame = (now) => {
     const dt = clamp((now - last) / 1000, 0.001, 0.05);
     last = now;
-    current += (target - current) * (1 - Math.exp(-dt * 7));
+    current += (target - current) * (1 - Math.exp(-dt * 12));
     if (Math.abs(target - current) < 0.0005) current = target;
     show(current);
+    const pins = map.draw(current, dt);
     const busy = phone ? phone.render(current, dt) : false;
-    if (current !== target || busy) requestAnimationFrame(frame);
+    if (visible && (current !== target || busy || pins)) requestAnimationFrame(frame);
     else running = false;
   };
   // Rien ne tourne quand rien ne bouge : batterie préservée.
   const wake = () => {
-    if (running) return;
+    if (running || !visible) return;
     running = true;
     last = performance.now();
     requestAnimationFrame(frame);
@@ -72,9 +76,20 @@ async function start() {
     read();
     wake();
   };
+  // Hors de l'écran, plus rien n'est calculé.
+  new IntersectionObserver(([e]) => {
+    visible = e.isIntersecting;
+    wake();
+  }).observe(stage);
+  map.onReady = wake;
+  listeners.add(() => {
+    map.setTheme();
+    wake();
+  });
+
   const onResize = () => {
     map.resize(stage.clientWidth, stage.clientHeight);
-    phone?.resize(stage.clientWidth, stage.clientHeight);
+    phone?.resize();
     onScroll();
   };
   addEventListener('scroll', onScroll, { passive: true });

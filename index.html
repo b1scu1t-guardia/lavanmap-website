@@ -30,12 +30,11 @@
     <main id="top">
       <section class="trip" aria-label="Présentation de l’application">
         <div class="stage">
-          <svg class="map" aria-hidden="true" preserveAspectRatio="xMidYMin slice"></svg>
-          <img class="van" src="/models/van.webp" alt="" width="120" height="266" />
+          <canvas class="map" aria-hidden="true"></canvas>
           <canvas class="phone" role="img" aria-label="L’application La Van Map sur un téléphone"></canvas>
           <div class="still" aria-hidden="true">
-            <img class="only-light" src="/models/phone-light.webp" alt="" />
-            <img class="only-dark" src="/models/phone-dark.webp" alt="" />
+            <img class="only-light" src="/models/phone-light.webp" alt="" loading="lazy" decoding="async" />
+            <img class="only-dark" src="/models/phone-dark.webp" alt="" loading="lazy" decoding="async" />
           </div>
 
           <div class="steps">
