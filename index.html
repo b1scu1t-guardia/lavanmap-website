@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>La Van Map : où dormir et manger en van</title>
+    <meta name="description" content="La carte des bons plans pour dormir et manger en van ou en camping-car, partagés et notés par les voyageurs." />
+    <meta name="theme-color" content="#f4fbf4" />
+    <meta property="og:title" content="La Van Map" />
+    <meta property="og:description" content="Où dormir et manger en van, selon ceux qui y sont passés." />
+    <meta property="og:image" content="/og.jpg" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/icon.png" />
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <a class="skip" href="#suite">Passer la présentation</a>
+
+    <header class="bar">
+      <a class="brand" href="#top"><img src="/icon.png" alt="" width="36" height="36" />La Van Map</a>
+      <fieldset class="themes">
+        <legend class="sr">Apparence du site</legend>
+        <label><input type="radio" name="theme" value="light" /><span>Clair</span></label>
+        <label><input type="radio" name="theme" value="dark" /><span>Sombre</span></label>
+        <label><input type="radio" name="theme" value="system" /><span>Système</span></label>
+      </fieldset>
+    </header>
+
+    <main id="top">
+      <section class="trip" aria-label="Présentation de l’application">
+        <div class="stage">
+          <svg class="map" aria-hidden="true" preserveAspectRatio="xMidYMin slice"></svg>
+          <img class="van" src="/models/van.webp" alt="" width="120" height="266" />
+          <canvas class="phone" role="img" aria-label="L’application La Van Map sur un téléphone"></canvas>
+          <div class="still" aria-hidden="true">
+            <img class="only-light" src="/models/phone-light.webp" alt="" />
+            <img class="only-dark" src="/models/phone-dark.webp" alt="" />
+          </div>
+
+          <div class="steps">
+            <article class="step is-on">
+              <h1>Où dormir, où manger. Demandez à ceux qui y sont passés.</h1>
+              <p>La Van Map réunit les bons plans des voyageurs en van et en camping-car sur une carte simple à lire.</p>
+              <p class="soon">Bientôt sur Android et iPhone</p>
+            </article>
+            <article class="step">
+              <h2>Une carte, deux envies</h2>
+              <p>Bleu pour dormir, orange pour manger, vert pour les deux. Touchez un lieu, vous savez déjà ce qui vous attend.</p>
+            </article>
+            <article class="step">
+              <h2>À la taille de votre van</h2>
+              <p>Indiquez sa hauteur et sa longueur une fois. Les lieux trop bas, trop courts ou difficiles d’accès disparaissent.</p>
+            </article>
+            <article class="step">
+              <h2>Des avis qui disent « je »</h2>
+              <p>Une note sur cinq, des photos, quelques mots. Chaque avis est personnel et l’application le rappelle.</p>
+            </article>
+            <article class="step">
+              <h2>La nuit, avant la nuit</h2>
+              <p>Température, pluie et rafales jusqu’à 8 h, et les espaces protégés où le bivouac est souvent interdit.</p>
+            </article>
+            <article class="step">
+              <h2>Un trajet, des arrêts</h2>
+              <p>Donnez le départ et l’arrivée. La Van Map range dans l’ordre les lieux à moins de 15 km de votre route, en France.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="facts" id="suite">
+        <h2>Pensée pour la route</h2>
+        <dl>
+          <div>
+            <dt>Sans réseau</dt>
+            <dd>Enregistrez une zone de la carte avant de partir. Vos favoris vous suivent aussi.</dd>
+          </div>
+          <div>
+            <dt>Sans se dévoiler</dt>
+            <dd>La position GPS est retirée de vos photos. Votre carnet de voyage ne quitte pas votre téléphone.</dd>
+          </div>
+          <div>
+            <dt>Sans mauvaise surprise</dt>
+            <dd>Les voyageurs confirment qu’un lieu est toujours valable. Dix demandes suffisent à le retirer.</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="modes">
+        <div class="modes-copy">
+          <h2>De l’aube à la nuit noire</h2>
+          <p>L’application passe du clair au sombre, carte comprise. Ce site aussi, essayez.</p>
+          <div class="switch">
+            <button type="button" data-set="light">Voir en clair</button>
+            <button type="button" data-set="dark">Voir en sombre</button>
+          </div>
+        </div>
+        <div class="pair">
+          <img src="/models/phone-light.webp" alt="L’application en thème clair" loading="lazy" />
+          <img src="/models/phone-dark.webp" alt="L’application en thème sombre" loading="lazy" />
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p class="end">La route est plus belle quand on sait où s’arrêter.</p>
+      <p>Les lieux, pseudos et avis visibles sur les captures sont des exemples. Vérifiez toujours la réglementation locale.</p>
+      <p>Cartes © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a>, OpenMapTiles, OpenFreeMap. Météo <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a>. Itinéraires et espaces protégés IGN, INPN.</p>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
