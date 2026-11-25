@@ -16,4 +16,5 @@ npm run preview  # vérifier dist/
 - `tools/screens.mjs` : conversion des captures et rendus, lus dans `%TEMP%/claude/shots`.
 
 Sans WebGL ou avec « animations réduites », une version simple s'affiche.
-Le site doit être servi à la racine d'un domaine.
+Avec Live Server (VS Code) : `npm run build` une fois (ou `npm run watch`), puis « Go Live »,
+qui affiche `dist/`. Ouvrir `index.html` directement ne marche pas.

@@ -12,6 +12,7 @@ const CSP = [
 ].join('; ');
 
 export default defineConfig({
+  base: './', // fonctionne aussi avec Live Server et dans un sous-dossier
   build: { target: 'es2022' },
   plugins: [
     {
