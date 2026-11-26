@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import fs from 'node:fs';
 const src=process.env.TEMP+'/claude/shots/', out='public/screens/';
 const names=['map','card','filters','spot','night','route'];
-for (const n of names) for (const m of ['light','dark']) await sharp(src+`${n}-${m}.png`).resize(720).webp({quality:82}).toFile(out+`${n}-${m}.webp`);
+for (const n of names) for (const m of ['light','dark']) await sharp(src+`${n}-${m}.png`).resize(1080,null,{kernel:'lanczos3'}).sharpen({sigma:0.6}).webp({quality:90,smartSubsample:true}).toFile(out+`${n}-${m}.webp`);
 const tiles=[];let i=0;for(const m of ['light','dark'])for(const n of names){tiles.push({input:await sharp(src+`${n}-${m}.png`).resize(240).toBuffer(),left:(i%6)*250,top:Math.floor(i/6)*546});i++}
 await sharp({create:{width:1500,height:1092,channels:3,background:'#888'}}).composite(tiles).png().toFile(process.env.TEMP+'/claude/sheet.png');
 for(const f of fs.readdirSync(out))console.log(f,fs.statSync(out+f).size);

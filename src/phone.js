@@ -21,7 +21,10 @@ const smooth = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 
 export async function createPhone(canvas, theme, wake) {
   const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
-  let ratio = Math.min(devicePixelRatio, 1.5);
+  // Pleine finesse de l'écran (jusqu'à 2,5×) : les captures restent nettes sur téléphone.
+  const best = Math.min(devicePixelRatio || 1, 2.5);
+  const floor = Math.min(best, 1.25);
+  let ratio = best;
   renderer.setPixelRatio(ratio);
   renderer.setClearColor(0x000000, 0);
 
@@ -44,7 +47,7 @@ export async function createPhone(canvas, theme, wake) {
     const t = await loader.loadAsync(`${import.meta.env.BASE_URL}screens/${name}.webp`);
     t.flipY = false;
     t.colorSpace = SRGBColorSpace;
-    t.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+    t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
     t.minFilter = LinearMipmapLinearFilter;
     t.magFilter = LinearFilter;
     return t;
@@ -68,11 +71,12 @@ export async function createPhone(canvas, theme, wake) {
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
     fragmentShader: `
       uniform sampler2D a, b, a0, b0; uniform float wipe, blend; varying vec2 vUv;
+      // Biais -0,7 : niveau de détail plus fin, texte net même réduit.
       // L'écran suivant glisse par la droite, comme une page de l'application.
       vec4 page(sampler2D p, sampler2D n) {
         float edge = 1.0 - wipe;
-        vec4 from = texture2D(p, vec2(vUv.x + wipe * 0.28, vUv.y));
-        vec4 to = texture2D(n, vec2(vUv.x - edge, vUv.y));
+        vec4 from = texture2D(p, vec2(vUv.x + wipe * 0.28, vUv.y), -0.7);
+        vec4 to = texture2D(n, vec2(vUv.x - edge, vUv.y), -0.7);
         from.rgb *= 1.0 - 0.45 * wipe;
         return vUv.x >= edge ? to : from;
       }
@@ -137,14 +141,23 @@ export async function createPhone(canvas, theme, wake) {
   await renderer.compileAsync(scene, camera);
 
   let wide = true, aspect = 1, intro = 0;
-  let slow = 0;
+  let slow = 0, fast = 0;
+  const born = performance.now();
   /** Machine peu puissante : on baisse la finesse plutôt que la fluidité. */
   const adapt = (dt) => {
-    slow = dt > 0.024 ? slow + 1 : Math.max(0, slow - 0.5);
-    if (slow > 6 && ratio > 0.6) {
-      ratio = Math.max(0.6, ratio - 0.3);
+    // Les 3 premières secondes (chargement) ne comptent pas.
+    if (performance.now() - born < 3000) return;
+    slow = dt > 0.026 ? slow + 1 : Math.max(0, slow - 1);
+    fast = dt < 0.014 ? fast + 1 : 0;
+    // Baisse seulement après un vrai ralentissement durable, et jamais sous 1,25×.
+    if (slow > 40 && ratio > floor) {
+      ratio = Math.max(floor, ratio - 0.25);
       renderer.setPixelRatio(ratio);
       slow = 0;
+    } else if (fast > 120 && ratio < best) {
+      ratio = Math.min(best, ratio + 0.25);
+      renderer.setPixelRatio(ratio);
+      fast = 0;
     }
   };
 
@@ -190,6 +203,12 @@ export async function createPhone(canvas, theme, wake) {
       u.wipe.value = t;
       blend = Math.min(1, blend + dt * 2.2);
       u.blend.value = smooth(blend);
+      // Fondu fini : on libère la mémoire de l'autre thème (rechargé si besoin).
+      if (blend === 1 && previous !== textures) {
+        previous.forEach((x) => x.dispose());
+        for (const k in sets) if (k !== wanted) delete sets[k];
+        previous = textures;
+      }
       intro = Math.min(1, intro + dt * 0.85);
       const enter = 1 - Math.pow(1 - intro, 4);
 
