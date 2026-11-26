@@ -18,3 +18,7 @@ npm run preview  # vérifier dist/
 Sans WebGL ou avec « animations réduites », une version simple s'affiche.
 Avec Live Server (VS Code) : `npm run build` une fois (ou `npm run watch`), puis « Go Live »,
 qui affiche `dist/`. Ouvrir `index.html` directement ne marche pas.
+
+## Licence
+
+© 2026 Lucas — La Van Map. Tous droits réservés. Voir [LICENSE](LICENSE).

@@ -128,6 +128,7 @@ a { color: inherit; text-underline-offset: 0.2em; }
 
 footer { padding: clamp(80px, 10vw, 140px) clamp(16px, 6vw, 104px) 48px; color: var(--soft); font-size: 1rem; }
 footer p + p { margin-top: 0.8rem; max-width: 60rem; }
+footer .rights { margin-top: 2.4rem; color: var(--ink); font-weight: 600; }
 footer .end { max-width: 18ch; margin-bottom: 4rem; color: var(--ink); font-size: clamp(2.2rem, 4.6vw, 4rem); }
 
 .only-dark { display: none; }
